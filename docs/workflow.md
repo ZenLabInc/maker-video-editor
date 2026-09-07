@@ -26,7 +26,7 @@ media/2026-09-07-first/
 5. READMEのplan-session、previewを実行します。previewは全区間を最大幅640pxで出力する低解像度版です。部分プレビューや対話GUIはありません。
 6. 発話の欠け、無言作業の4倍速、PC音声、音量、レイアウト、冒頭・末尾の同期を確認してください。重要音が速くなっていたら計画を分割してspeed=1にしてください。発話なしの区間は映像を残します。
 7. JSON修正後はvalidate、renderを実行してください。解析は再実行しません。素材を移動した場合はsources.pathを更新してください。素材自体を編集・差し替えた場合は計画も作り直してください。
-8. 完成動画を通して確認後、upload-manifestで投稿準備ファイルを生成できます。実投稿機能は未実装です。
+8. 完成動画を通して確認後、upload-manifestで投稿準備ファイルを生成できます。実投稿にはyoutube.mdのCloud／OAuth準備と明示upload-private実行が必要です。
 
 ## エラーと制限への対応
 
@@ -50,3 +50,8 @@ VFR、異なる解像度／fpsはFFmpegのCFR出力へ変換しますが、実�
 7. `maker-video subtitles outputs/translation/english.json outputs/plan.json outputs/subtitles` でenglish.srt／english.vttを生成します。プレーヤーへ読み込み、完成動画の時刻・速度境界・重なりを確認してください。
 
 ASR／翻訳で中断した場合は--resumeを付けて同じ入出力を指定します。入力や用語辞書の変更時は新しい出力先を使います。字幕生成は翻訳を再実行せず繰り返せますが、新しい出力先を指定してください。
+
+
+## 非公開投稿へ進む
+
+英語字幕と完成動画を確認後、docs/youtube.mdの手順に従って焼き込み・認証・非公開アップロードを行います。Google Cloud設定は現時点で承認レビューにより未完了です。実動画が特定されるまで投稿せず、合成テスト素材は使用しません。

@@ -55,7 +55,7 @@ maker-video plan-session media/2026-09-07-first outputs/plan.json --hands-index 
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-素材検出・CLI・合成素材による23件のテストを通過しました。同期オフセット、欠落音声、通常／倍速、画面配置の画素検証、音声の時間位置とミュート、前後素材の挿入、出力尺、入力検証を確認しています。実Osmo／Mac素材、実Silero推論、YouTube認証・投稿は未検証です。
+素材検出・CLI・合成素材による27件のテストを通過しました。同期オフセット、欠落音声、通常／倍速、画面配置の画素検証、音声の時間位置とミュート、前後素材の挿入、出力尺、入力検証を確認しています。実Osmo／Mac素材、実Silero推論、YouTube認証・投稿は未検証です。
 
 - [仕様と編集計画](docs/specification.md)
 - [構成と処理方式](docs/architecture.md)
@@ -63,7 +63,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 - [YouTubeアップロード設計](docs/youtube.md)
 - [検証結果と制限](docs/validation.md)
 
-YouTube機能は投稿準備JSONの生成までです。認証情報は不要で、実アップロードは行いません。
+YouTube非公開アップロードのコードを実装しました。正規OAuthと実動画の指定が必要です。現在はCloud準備が未完了で、実投稿していません。[YouTube連携手順](docs/youtube.md)をご覧ください。
 
 ## 日本語文字起こし → 英語字幕
 
@@ -84,4 +84,7 @@ maker-video subtitles outputs/translation/english.json outputs/plan.json outputs
 
 中断後は同じコマンドに `--resume` を付けます。入力／設定が変わった場合は別の出力先を指定してください。成功済みのASRチャンク・翻訳バッチは再処理しません。ASRは既定5分単位で処理し、字幕用時刻はPythonが速度変更・対象範囲・OP尺を反映して算出します。英訳モデルには時刻を決めさせません。
 
-出力は `english.srt`、`english.vtt` と確認用JSONです。動画への字幕焼き込みは現段階では未対応です。字幕なしのrenderも従来どおり使えます。日本語原文と英訳は `english.json` で並べて確認できます。実素材での字幕品質は未評価です。
+出力は `english.srt`、`english.vtt` と確認用JSONです。burn-subtitlesで字幕の焼き込みにも対応しています。字幕なしのrenderも従来どおり使えます。日本語原文と英訳は `english.json` で並べて確認できます。実素材での字幕品質は未評価です。
+
+
+非公開投稿は `burn-subtitles → upload-manifest → upload-private` の明示実行です。英語字幕を焼き込み、チャンネルとprivate状態を検証します。認証情報と再開台帳はGitへ含めません。実動画が未指定のため、検証用合成動画は投稿していません。

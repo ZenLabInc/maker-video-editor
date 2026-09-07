@@ -49,6 +49,16 @@ def main(argv=None):
     translation.add_argument('--resume', action='store_true')
     subtitles = sub.add_parser('subtitles', help='Map translations to edited SRT and WebVTT')
     subtitles.add_argument('english'); subtitles.add_argument('plan'); subtitles.add_argument('output')
+    burn = sub.add_parser('burn-subtitles', help='Burn English SRT into a video for reliable YouTube delivery')
+    burn.add_argument('video'); burn.add_argument('subtitles'); burn.add_argument('output')
+    auth = sub.add_parser('youtube-auth', help='Desktop OAuth; stores credentials in macOS Keychain')
+    auth.add_argument('client_json'); auth.add_argument('--account',default='default')
+    channels = sub.add_parser('youtube-channels'); channels.add_argument('--account',default='default')
+    upload_private = sub.add_parser('upload-private', help='Explicitly upload a prepared video as private only')
+    upload_private.add_argument('manifest'); upload_private.add_argument('--channel-id',required=True)
+    upload_private.add_argument('--made-for-kids',choices=['yes','no'],required=True)
+    upload_private.add_argument('--account',default='default')
+    upload_private.add_argument('--ledger',default='.cache/youtube-uploads')
     check = sub.add_parser('validate'); check.add_argument('plan')
     for name in ('preview', 'render'):
         command = sub.add_parser(name)
@@ -59,7 +69,24 @@ def main(argv=None):
     upload.add_argument('--description', default='')
     args = parser.parse_args(argv)
     try:
-        if args.command == 'translate':
+        if args.command == 'burn-subtitles':
+            from .subtitles import burn_subtitles
+            print(burn_subtitles(args.video,args.subtitles,args.output))
+        elif args.command == 'youtube-auth':
+            from .youtube import authorize
+            print(authorize(args.client_json,args.account))
+        elif args.command in ('youtube-channels','upload-private'):
+            from .youtube import authorized_session,get_channels,upload_private
+            session=authorized_session(args.account)
+            try:
+                result = get_channels(session) if args.command == 'youtube-channels' else upload_private(
+                    json.loads(Path(args.manifest).read_text()),args.channel_id,args.made_for_kids=='yes',args.ledger,session)
+                print(json.dumps(result,ensure_ascii=False))
+                if isinstance(result,dict) and result.get('state') == 'processing_failed':
+                    return 3
+            finally:
+                session.close()
+        elif args.command == 'translate':
             from .translation import translate
             glossary = json.loads(Path(args.glossary).read_text()) if args.glossary else None
             print(translate(json.loads(Path(args.transcript).read_text()), args.output, glossary, args.resume))

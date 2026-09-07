@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
+youtube = ["google-auth>=2,<3", "google-auth-oauthlib>=1,<2", "requests>=2,<3", "keyring>=25,<26"]
 asr = ["mlx-whisper>=0.4,<0.5"]
 vad = ["silero-vad>=6,<7"]
 

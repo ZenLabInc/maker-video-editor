@@ -98,3 +98,30 @@ def write_subtitles(english,plan,output):
                             'Fast or simultaneous captions may exceed reading speed; inspect preview.',
                             'Hands/PC labels identify sources, not speakers.']})
     return root/'english.srt'
+
+
+def burn_subtitles(video, subtitles, output):
+    """Reencode with burned English text, plus a hash proof for the private uploader."""
+    import os
+    import shutil
+    import tempfile
+    from .engine import run
+    from .youtube import digest
+    video=Path(video).resolve(); subtitles=Path(subtitles).resolve(); output=Path(output).resolve()
+    if output.exists() or Path(str(output)+'.subtitles.json').exists():
+        raise ValueError('Burned video/proof already exists; choose a new output.')
+    if not subtitles.read_text().strip():
+        raise ValueError('Subtitle file is empty')
+    output.parent.mkdir(parents=True,exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.burn-',dir=output.parent) as temp:
+        root=Path(temp)
+        shutil.copyfile(subtitles,root/'captions.srt')
+        # Run in the scratch directory so arbitrary user paths need no filter escaping.
+        import subprocess
+        subprocess.run(['ffmpeg','-v','error','-y','-i',str(video),'-vf','subtitles=captions.srt',
+            '-c:v','libx264','-crf','20','-preset','fast','-c:a','copy','-movflags','+faststart','burned.mp4'],
+            cwd=root,check=True,capture_output=True)
+        os.link(root/'burned.mp4',output)
+    atomic_json(Path(str(output)+'.subtitles.json'),{'video_sha256':digest(output),
+                'source_video_sha256':digest(video),'subtitle_sha256':digest(subtitles),'method':'libass-burn-in'})
+    return output
