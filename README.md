@@ -55,7 +55,7 @@ maker-video plan-session media/2026-09-07-first outputs/plan.json --hands-index 
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-素材検出・CLI・合成素材による13件のテストを通過しました。同期オフセット、欠落音声、通常／倍速、画面配置の画素検証、音声の時間位置とミュート、前後素材の挿入、出力尺、入力検証を確認しています。実Osmo／Mac素材、実Silero推論、YouTube認証・投稿は未検証です。
+素材検出・CLI・合成素材による23件のテストを通過しました。同期オフセット、欠落音声、通常／倍速、画面配置の画素検証、音声の時間位置とミュート、前後素材の挿入、出力尺、入力検証を確認しています。実Osmo／Mac素材、実Silero推論、YouTube認証・投稿は未検証です。
 
 - [仕様と編集計画](docs/specification.md)
 - [構成と処理方式](docs/architecture.md)
@@ -64,3 +64,24 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 - [検証結果と制限](docs/validation.md)
 
 YouTube機能は投稿準備JSONの生成までです。認証情報は不要で、実アップロードは行いません。
+
+## 日本語文字起こし → 英語字幕
+
+Apple Silicon向けMLX Whisperの **large-v3** を明示使用します。tiny／turboへの自動変更はしません。初回のみ依存と約3GBのモデルをダウンロードします。以後の文字起こしはローカルで実行します。
+
+```sh
+pip install -e '.[asr]'
+maker-video prepare-asr-model
+maker-video transcribe-plan outputs/plan.json outputs/asr
+# 計画作成前なら transcribe-session media/撮影01 outputs/asr も利用できます。
+maker-video translate outputs/asr/transcript.json outputs/translation --glossary examples/glossary.json
+maker-video subtitles outputs/translation/english.json outputs/plan.json outputs/subtitles
+```
+
+文字起こしの `transcript.json` は手元・PCを混ぜずに音源別の日本語、区間／単語の元時刻、共通時刻を保存します。これは話者分離ではありません。無音の幻覚、マイクへの回り込み、同時発話の自動解決は保証しません。
+
+英訳にはPATH上の正規 `codex` CLIと保存済みChatGPTログインを使います。`codex login status` で確認し、未認証なら `codex login` のブラウザー操作を行ってください。CLI未導入の場合は[公式手順](https://learn.chatgpt.com/docs/cli)をご覧ください。ChatGPTの契約枠・利用制限に従い、APIキー課金へは切り替えません。日本語テキストと周辺文脈がCodexへ送られます。動画や音声は送信しません。
+
+中断後は同じコマンドに `--resume` を付けます。入力／設定が変わった場合は別の出力先を指定してください。成功済みのASRチャンク・翻訳バッチは再処理しません。ASRは既定5分単位で処理し、字幕用時刻はPythonが速度変更・対象範囲・OP尺を反映して算出します。英訳モデルには時刻を決めさせません。
+
+出力は `english.srt`、`english.vtt` と確認用JSONです。動画への字幕焼き込みは現段階では未対応です。字幕なしのrenderも従来どおり使えます。日本語原文と英訳は `english.json` で並べて確認できます。実素材での字幕品質は未評価です。

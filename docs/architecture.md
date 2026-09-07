@@ -23,3 +23,21 @@ config.json → CLI plan → 発話検出または明示energy → plan.json
 Pythonは標準ライブラリだけでもenergy方式で動作します。FFmpegは外部プロセスです。シェル文字列として素材パスを実行しません。通常編集にネットワーク処理はありません。
 
 将来は区間キャッシュ、二回音量測定、VAD品質評価、字幕、任意レイアウト、複数素材、YouTube実行アダプターを追加できます。同期ドリフトはマーカー2点から `master=a*source+b` を推定し、映像と音声の両方へ同一補正を入れる予定です。初版はa=1の固定オフセットのみです。
+
+## ASR／字幕工程
+
+```text
+撮影フォルダー または plan.json
+  → transcribe-session / transcribe-plan
+  → 音源別FFmpeg抽出 → ローカルMLX large-v3
+  → ASRチャンクチェックポイント → transcript.json
+  → translate → 正規 codex exec（ChatGPT保存認証／構造化出力）
+  → 翻訳バッチキャッシュ → english.json（日本語＋英語＋元時刻）
+  → subtitles + plan.json → Python時刻変換 → SRT / WebVTT
+```
+
+transcription.pyはモデル準備と検査、音声抽出、ASR、チャンク保存／再開を担います。translation.pyは認証方式確認、固定プロンプト、バッチ分割、ID検証、翻訳再開を担います。subtitles.pyは時刻計算、整形、同時字幕の統合、SRT／WebVTT出力を担います。
+
+Codexは独立した一時作業ディレクトリ、read-only、承認never、シェル無効、Web検索無効、ユーザー設定を読み込まないモードで実行します。保存認証の正規利用は維持します。APIキー／アクセストークンの環境注入は引き継がず、API課金へ切り替えません。追加の権限が必要な翻訳は失敗として扱います。CLI実行に600秒の上限を設けます。
+
+ASR・英訳は入力ハッシュと設定が一致するときだけ再開します。成功ファイルは原子的に作成して上書きせず、同時実行を.lockで拒否します。元動画が長くてもASRの音声メモリはチャンク単位です。最終段落一覧とJSONは全体をメモリへ保持するため、無制限サイズは想定しません。

@@ -19,5 +19,9 @@
     "width": 1920,
     "height": 1080,
     "fps": 30
+  },
+  "transcription": {
+    "chunk_seconds": 300,
+    "initial_prompt": "Arduino、Raspberry Pi、はんだ付け"
   }
 }

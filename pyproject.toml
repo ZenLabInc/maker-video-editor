@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
+asr = ["mlx-whisper>=0.4,<0.5"]
 vad = ["silero-vad>=6,<7"]
 
 [project.scripts]

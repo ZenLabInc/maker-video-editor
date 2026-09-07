@@ -134,7 +134,7 @@ def create_plan(config, base):
         excluded = infos[name]['duration'] - (end-start)
         if excluded > 0.05:
             warnings.append(f'{name}: {excluded:.3f}s outside shared overlap excluded; inspect sync.')
-    plan = {'version': 1, 'sources': sources, 'range': [start, end],
+    plan = {'transcription': config.get('transcription', {}), 'version': 1, 'sources': sources, 'range': [start, end],
             'segments': segments, 'output': config.get('output', {'width': 1920, 'height': 1080, 'fps': 30}),
             'opening': resolve(config['opening']) if config.get('opening') else None,
             'ending': resolve(config['ending']) if config.get('ending') else None,

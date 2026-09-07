@@ -5,6 +5,7 @@ import sys
 
 VIDEO_EXTENSIONS = {'.mp4', '.mov', '.mkv', '.webm', '.m4v', '.avi', '.mts', '.m2ts'}
 DEFAULT_SETTINGS = {
+    'transcription': {'chunk_seconds': 300, 'initial_prompt': ''},
     'screen_offset': 0,
     'analysis': {'method': 'silero', 'threshold_db': -38, 'padding': 0.3, 'bridge_gap': 0.6},
     'silent_speed': 4, 'normal_ranges': [], 'hands_large_ranges': [],

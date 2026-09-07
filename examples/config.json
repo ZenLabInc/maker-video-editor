@@ -2,12 +2,28 @@
   "hands": "../media/hands.mov",
   "screen": "../media/screen.mov",
   "screen_offset": 0,
-  "analysis": {"method": "silero", "threshold_db": -38, "padding": 0.3, "bridge_gap": 0.6},
+  "analysis": {
+    "method": "silero",
+    "threshold_db": -38,
+    "padding": 0.3,
+    "bridge_gap": 0.6
+  },
   "silent_speed": 4,
   "normal_ranges": [],
   "hands_large_ranges": [],
-  "gains": {"hands": 1.0, "screen": 0.8},
+  "gains": {
+    "hands": 1.0,
+    "screen": 0.8
+  },
   "opening": null,
   "ending": null,
-  "output": {"width": 1920, "height": 1080, "fps": 30}
+  "output": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "transcription": {
+    "chunk_seconds": 300,
+    "initial_prompt": "Arduino、Raspberry Pi、はんだ付け"
+  }
 }

@@ -19,3 +19,11 @@ credentials/
 *.aac
 *.webm
 *.m4v
+
+.venv*/
+.cache/
+models/
+*.npz
+*.safetensors
+*.aiff
+*.flac

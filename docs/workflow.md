@@ -38,3 +38,15 @@ media/2026-09-07-first/
 - HDR/D-Log素材の色：初版はSDR向けです。適切なトーンマッピング／LUT適用は未実装です。SDR素材から開始してください。
 
 VFR、異なる解像度／fpsはFFmpegのCFR出力へ変換しますが、実機録画での検証は未了です。元動画のタイムスタンプが不連続、音声が大きく遅延して始まる、複数音声トラックがある素材は事前に正規化してください。数百の短い区間ではフレーム単位の丸めが累積するため、完成尺・同期を点検してください。
+
+## 文字起こしと英語字幕の実行
+
+1. Apple Silicon上のPython 3.11環境で `pip install -e '.[asr]'` を実行してください。既存のSilero依存とは別のオプションです。両方必要なら `pip install -e '.[asr,vad]'` とします。
+2. `maker-video prepare-asr-model` でlarge-v3をmodels/whisper-large-v3へ初回取得します。モデルと環境はGit除外です。別配置には--model-dirを指定します。
+3. `maker-video transcribe-plan outputs/plan.json outputs/asr` を実行します。計画がなければ `transcribe-session media/撮影01 outputs/asr` を使い、既存と同じ候補選択が可能です。
+4. 必要なら--initial-promptで専門用語を渡します。plan生成時にはsettings.jsonのtranscription設定も引き継がれます。
+5. `codex login status` でChatGPT認証を確認します。未認証ならcodex loginのブラウザー認証を行ってください。資格情報をJSONや会話へ記載する必要はありません。
+6. `maker-video translate outputs/asr/transcript.json outputs/translation --glossary examples/glossary.json` で英訳します。english.jsonで日本語と英語を見比べて修正できます。
+7. `maker-video subtitles outputs/translation/english.json outputs/plan.json outputs/subtitles` でenglish.srt／english.vttを生成します。プレーヤーへ読み込み、完成動画の時刻・速度境界・重なりを確認してください。
+
+ASR／翻訳で中断した場合は--resumeを付けて同じ入出力を指定します。入力や用語辞書の変更時は新しい出力先を使います。字幕生成は翻訳を再実行せず繰り返せますが、新しい出力先を指定してください。

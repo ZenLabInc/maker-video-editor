@@ -22,3 +22,19 @@ Silero実装は[公式のpip API](https://github.com/snakers4/silero-vad)に基�
 ## 撮影フォルダー機能の追加検証
 
 13テストをPython 3.11.9で実行し、全件成功しました（約3.5秒）。追加項目は既存撮影フォルダーへの作成拒否、大文字拡張子、日本語名、隠しファイル／AppleDouble／入れ子／リンク除外、0候補、対話選択・中断、非対話エラーと明示index、同一ハードリンク拒否、編集設定と旧CLIの保持です。実合成素材を自由な名前で撮影フォルダーへ配置し、init-session → plan-session → validateの経路も検証します。
+
+## ASRと英語字幕の追加検証
+
+ASRの抽出／時刻／無音／欠落音声／中断再開はテスト用バックエンドで検証します。これはモデル精度テストとは区別します。英訳の欠落・重複ID、失敗後のキャッシュ再開、速度境界の積算、対象区間のクリップ、OP尺加算、同時音源の字幕、長文整形、SRT／WebVTTをテストします。
+
+実Codex CLI 0.153.4、保存済みChatGPT認証で1文の英訳スモークを実行し、構造化出力とID検証が成功しました。合成文「今日は電子工作の動画を作ります。」を英訳できました。実素材の翻訳品質評価ではありません。
+
+参照した公式資料：
+
+- [MLX Whisper API／モデル指定と単語時刻](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
+- [Codex非対話モード／構造化出力](https://learn.chatgpt.com/docs/non-interactive-mode)
+- [Codex認証／ChatGPTとAPIキーの区別](https://learn.chatgpt.com/docs/auth)
+
+実MLX Whisper 0.4.3と非量子化large-v3（約2.9GiB）をロードし、HF_HUB_OFFLINE=1で日本語合成音声を推論しました。「こんにちは。今日は電子工作の動画を作ります。はんだ付けの手順を説明します。」を認識し、2区間・21単語時刻を取得しました。モデルロードを含む約22.4秒のスモークであり、実素材の性能・精度保証ではありません。構造／時刻等の自動テストは23件全通過しました。
+
+合成動画を使い、撮影フォルダー自動選択 → 計画 → 実large-v3 → 実Codex英訳 → SRT／WebVTT → H.264/AAC完成動画までの実CLI経路が成功しました。6.75秒の動画と2キューの字幕を生成しました。成果はwork/full-smoke/のローカル検証用で、投稿対象ではありません。
