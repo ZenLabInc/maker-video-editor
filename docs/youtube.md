@@ -2,9 +2,13 @@
 
 ## 実装済みと外部準備
 
-正規Desktop OAuth、macOS Keychainへのトークン保存、YouTube Data APIの再開アップロード、重複防止、投稿先とprivate状態の確認を実装しました。実アカウントへの認証・投稿は未完了です。Google Cloudの新規プロジェクト/API/OAuthクライアントが必要です。API連携は公開せず、privateのみ扱います。
+正規Desktop OAuth、macOS Keychainへのトークン保存、YouTube Data APIの再開アップロード、重複防止、投稿先とprivate状態の確認を実装しました。API連携はprivateのみ扱います。実動画の投稿は未実施です。
 
-2026-09-07のブラウザー確認では、Chrome拡張経由でhatada.yuhi@zenlab.co.jp、Cloudのzenlab.co.jp組織、StudioのZenLabチャンネルを確認しました。チャンネルIDは `UCT3Y4S8vM74xzNL6wQR1Zmg` です。ユーザーは既存ZenOrg(zenorg)とZenMedia(zenmedia-498310)を削除予定にし、ZenLab YouTubeを新規作成するよう依頼しましたが、自動承認レビューが作成操作を拒否したため、削除・新規作成・API有効化は未完了です。組織・チャンネルの削除は依頼されておらず実施しません。
+2026-09-07: ユーザーが専用プロジェクト ZenLabYoutube (`zenlabyoutube`、番号86544629335) を作成し、YouTube Data API v3の有効化とOAuth同意画面の初期構成を完了しました。承認を受けてDesktopクライアント ZenLab YouTube Desktopを作成し、クライアントJSONをGit除外のcredentials/へ権限0600で保存しました。hatada.yuhi@zenlab.co.jpで正規OAuth認証が成功し、トークンはmacOS Keychainへ保存済みです。ただし、このアカウントのchannels.list(mine=true)は空でした。
+
+同日のYouTube Studioアカウント一覧で、ZenLab (@ZenLabInc、チャンネルID `UCT3Y4S8vM74xzNL6wQR1Zmg`) は zenlab.jp@gmail.com に紐づき、hatada.yuhi@zenlab.co.jpは「チャンネルがありません」と確認しました。ユーザー承認後、OAuthを外部・テスト中へ変更し、zenlab.jp@gmail.comのみをテストユーザーとして追加しました。同Gmailで再認証し、Keychainの既定資格情報を更新済みです。channels.list(mine=true)からZenLabと上記チャンネルIDが返り、投稿先の一致を確認しました。実動画素材の保存場所が未提供のため、投稿は未実施です。
+
+承認された旧プロジェクトZenOrg (`zenorg`) とZenMedia (`zenmedia-498310`) のみシャットダウン済みです。Cloud画面で2026/10/07以降の削除予定を確認しました。同名の別プロジェクトZenMedia (`gen-lang-client-0695258215`)、その他プロジェクト、組織、YouTubeチャンネルは変更していません。
 
 ## 認証の準備
 
