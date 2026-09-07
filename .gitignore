@@ -5,7 +5,8 @@ __pycache__/
 .DS_Store
 work/
 outputs/
-media/
+media/*
+!media/.gitkeep
 credentials/
 .env*
 *client_secret*.json
