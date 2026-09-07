@@ -83,6 +83,24 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(main(['upload-manifest', str(output), str(manifest), '--title', 'Test']), 0)
         self.assertFalse(json.loads(manifest.read_text())['network_request_sent'])
 
+    def test_session_cli_real_media_to_plan(self):
+        import shutil
+        directory = self.root / 'recording'
+        self.assertEqual(main(['init-session', str(directory)]), 0)
+        shutil.copyfile(self.root/'hands.mp4', directory/'hands'/'任意名.MP4')
+        shutil.copyfile(self.root/'screen.mp4', directory/'screen'/'画面録画.mp4')
+        settings = directory/'settings.json'
+        config = json.loads(settings.read_text())
+        config['analysis']['method'] = 'energy'
+        config['screen_offset'] = 2
+        settings.write_text(json.dumps(config))
+        target = directory/'plan.json'
+        self.assertEqual(main(['plan-session', str(directory), str(target)]), 0)
+        plan = json.loads(target.read_text())
+        self.assertEqual(plan['sources']['screen']['offset'], 2)
+        self.assertEqual(Path(plan['sources']['hands']['path']).name, '任意名.MP4')
+        self.assertEqual(main(['validate', str(target)]), 0)
+
     def test_validation_rejects_gaps_nan_and_bad_gains(self):
         plan = create_plan(self.config, self.root)
         for field, value in [('start', 9), ('speed', float('nan')), ('layout', 'bad')]:

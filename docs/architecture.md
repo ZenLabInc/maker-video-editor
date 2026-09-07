@@ -13,6 +13,7 @@ config.json → CLI plan → 発話検出または明示energy → plan.json
 ```
 
 - `src/maker_video_editor/cli.py`：CLIとJSON入出力、投稿準備ファイル。
+- `session.py`：撮影フォルダー作成、直下動画の発見、候補選択、同一ファイル拒否。
 - `engine.py`：ffprobe、音量解析、区間の和集合、計画検証、FFmpegレンダー。
 - `vad.py`：オプションのSilero。5分窓を1秒重ねて処理し、長時間音声のメモリ使用を抑えます。
 - `tests/test_pipeline.py`：FFmpegで小さな合成映像・音声を作成する統合テスト。

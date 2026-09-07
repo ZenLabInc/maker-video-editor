@@ -58,3 +58,9 @@ examples/config.jsonからの相対パスで素材を指定します。作成さ
 `version=1`、`sources`（path、offset）、`range`、`segments`、`output`、`opening`、`ending`、`warnings`、`analysis`を持ちます。segmentsの各要素はstart、end、speed、layout（screenまたはhands）、gainsを持ちます。区間は連続し、重複・欠落なくrange全体を覆う必要があります。区間を分割して速度や配置を変更できます。解析情報は生成時の記録で、レンダーはsegmentsを正として使います。
 
 音量は区間ごとの線形倍率、合成時のピークリミッター、完成動画全体の一回処理loudnorm（目標-16LUFS、-1.5dBTP）です。放送規格への厳密適合や二回測定による音量一致は保証しません。オープニングとエンディングは速度を変えず前後に挿入します。
+
+## 撮影フォルダー入力（追加実装）
+
+init-sessionで撮影ごとにhands/、screen/、settings.jsonを作成します。plan-sessionはこの1撮影のみを対象に、自由な素材名から入力を決定します。各役割1候補なら自動、複数なら対話番号選択、非対話なら明示index指定が必要です。0候補はエラーです。日時からの推測、再帰検索、複数素材連結は行いません。リンク経由で別撮影を混ぜないよう、サブフォルダーのシンボリックリンクを拒否し、動画のシンボリックリンクを除外します。
+
+設定と計画の既存形式は維持します。plan-sessionではhands/screenを発見したパスで置き換え、オフセット等はsettings.jsonまたは--configの設定から保持します。--configの相対素材パス以外（OP/ED等）は設定ファイルの場所を基準にします。

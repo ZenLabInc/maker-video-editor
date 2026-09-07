@@ -1,12 +1,29 @@
 # 実行手順
 
-素材置き場はプロジェクト直下の `/Users/hatadayuuhi/zenlab/maker-video-editor/media/` です。フォルダーは作成済みです。手元映像を `media/hands.mov`、画面録画を `media/screen.mov` に置いてください。設定例は `examples/config.json` の位置を基準に `../media/hands.mov` と `../media/screen.mov` を参照します。別のファイル名を使う場合は設定内のパスを変更してください。media内の動画はGit管理から除外し、空フォルダー用の `.gitkeep` だけを追跡します。
+素材置き場は `/Users/hatadayuuhi/zenlab/maker-video-editor/media/` です。撮影ごとに次のコマンドで専用フォルダーを作成してください。
 
-1. OsmoのmicroSDから撮影ファイルをmedia/へコピーしてください。元データは保持してください。Mac画面録画も保存し、プレーヤーで映像・内部音声の存在を先に確認してください。内部音声の録画方法はこの初版では設定しません。
+```sh
+maker-video init-session media/2026-09-07-first
+```
+
+```text
+media/2026-09-07-first/
+  hands/          ← microSDの手元動画（名前は自由）
+  screen/         ← Mac画面録画（名前は自由）
+  settings.json   ← オフセット・解析方式等。素材名の記入は不要
+```
+
+`maker-video plan-session media/2026-09-07-first outputs/plan.json` で自動認識して計画を生成します。1候補は自動、複数候補は番号選択、0候補はエラーです。非対話ではエラーに表示される番号を `--hands-index 2` / `--screen-index 1` で指定します。別の撮影フォルダーや入れ子フォルダーは検索しません。複数ファイルの自動連結は行いません。
+
+大文字・小文字を問わずmp4/mov/mkv/webm/m4v/avi/mts/m2tsを候補にします。隠しファイル（AppleDoubleを含む）とシンボリックリンクは除外します。手元と画面に同じ実ファイルのハードリンクを選んだ場合はエラーです。フォルダー内の素材・設定はGit管理から除外されます。
+
+従来の直接指定も利用できます。その場合のみ `examples/config.json` の `../media/hands.mov` 等を実ファイル名へ変更してください。
+
+1. OsmoのmicroSDから撮影ファイルを撮影フォルダーのhands/へコピーしてください。元データは保持してください。Mac画面録画を同じ撮影のscreen/へ保存し、プレーヤーで映像・内部音声の存在を先に確認してください。内部音声の録画方法はこの初版では設定しません。
 2. できれば両動画で同じイベントを記録してください。Mac側の画面変化を手元カメラにも映すなど、共通音がなくても視覚マーカーを作れます。末尾にもマーカーを残すとドリフトを確認できます。
 3. 同じイベントが手元で10秒、画面で7秒ならscreen_offset=3です。逆なら負数です。推測値の0で始めた場合も、プレビューで同期を必ず確認してください。
-4. examples/config.jsonを編集します。区間は完成動画の時刻ではなく手元の元動画の時刻です。例：normal_ranges=[[30,35]]、hands_large_ranges=[[20,50]]。支給されたopening/endingのパスを設定してください。
-5. READMEのplan、previewを実行します。previewは全区間を最大幅640pxで出力する低解像度版です。部分プレビューや対話GUIはありません。
+4. 撮影フォルダーのsettings.jsonを編集します。区間は完成動画の時刻ではなく手元の元動画の時刻です。例：normal_ranges=[[30,35]]、hands_large_ranges=[[20,50]]。支給されたopening/endingのパスを設定してください。
+5. READMEのplan-session、previewを実行します。previewは全区間を最大幅640pxで出力する低解像度版です。部分プレビューや対話GUIはありません。
 6. 発話の欠け、無言作業の4倍速、PC音声、音量、レイアウト、冒頭・末尾の同期を確認してください。重要音が速くなっていたら計画を分割してspeed=1にしてください。発話なしの区間は映像を残します。
 7. JSON修正後はvalidate、renderを実行してください。解析は再実行しません。素材を移動した場合はsources.pathを更新してください。素材自体を編集・差し替えた場合は計画も作り直してください。
 8. 完成動画を通して確認後、upload-manifestで投稿準備ファイルを生成できます。実投稿機能は未実装です。

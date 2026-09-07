@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 from .engine import create_plan, render, validate
+from .session import init_session, session_config
 
 
 def write_json(path, data):
@@ -20,6 +21,14 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command', required=True)
     plan = sub.add_parser('plan', help='Analyze sources and create an editable JSON plan')
     plan.add_argument('config'); plan.add_argument('output')
+    init = sub.add_parser('init-session', help='Create a recording folder with hands/ and screen/')
+    init.add_argument('directory')
+    session = sub.add_parser('plan-session', help='Discover videos in one recording folder')
+    session.add_argument('directory')
+    session.add_argument('output', help='New plan JSON path')
+    session.add_argument('--config', help='Editing settings JSON (default: session/settings.json)')
+    session.add_argument('--hands-index', type=int)
+    session.add_argument('--screen-index', type=int)
     check = sub.add_parser('validate'); check.add_argument('plan')
     for name in ('preview', 'render'):
         command = sub.add_parser(name)
@@ -30,9 +39,18 @@ def main(argv=None):
     upload.add_argument('--description', default='')
     args = parser.parse_args(argv)
     try:
-        if args.command == 'plan':
-            source = Path(args.config).resolve()
-            result = create_plan(json.loads(source.read_text()), source.parent)
+        if args.command == 'init-session':
+            print(init_session(args.directory))
+        elif args.command in ('plan', 'plan-session'):
+            if Path(args.output).exists():
+                raise ValueError(f'Refusing to overwrite: {args.output}')
+            if args.command == 'plan':
+                source = Path(args.config).resolve()
+                config, base = json.loads(source.read_text()), source.parent
+            else:
+                config, base = session_config(args.directory, args.config,
+                                              args.hands_index, args.screen_index)
+            result = create_plan(config, base)
             write_json(args.output, result)
             for warning in result['warnings']:
                 print('WARNING:', warning, file=sys.stderr)
