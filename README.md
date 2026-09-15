@@ -1,5 +1,7 @@
 # maker-video-editor
 
+[English](README.en.md)
+
 Osmo Pocketの手元映像とMac画面録画を、PythonとFFmpegでローカル編集する初版です。独立したGitリポジトリで、companyリポジトリには属しません。通常の編集に生成AI API、APIトークン、編集ソフト操作は不要です。
 
 ## クイックスタート
@@ -7,7 +9,8 @@ Osmo Pocketの手元映像とMac画面録画を、PythonとFFmpegでローカル
 Python 3.11以上（この環境では `.python-version` で3.11.9を選択）、PATH上の `ffmpeg` / `ffprobe`（libx264、AAC対応）が必要です。
 
 ```sh
-cd /Users/hatadayuuhi/zenlab/maker-video-editor
+git clone https://github.com/ZenLabInc/maker-video-editor.git
+cd maker-video-editor
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[vad]'
@@ -88,3 +91,18 @@ maker-video subtitles outputs/translation/english.json outputs/plan.json outputs
 
 
 非公開投稿は `burn-subtitles → upload-manifest → upload-private` の明示実行です。英語字幕を焼き込み、チャンネルとprivate状態を検証します。認証情報と再開台帳はGitへ含めません。実動画が未指定のため、検証用合成動画は投稿していません。
+
+## リポジトリ構成
+
+| パス | 内容 |
+|---|---|
+| `src/maker_video_editor/` | 計画作成、解析、FFmpeg実行、字幕、YouTube連携 |
+| `examples/` | 撮影設定と用語集の例 |
+| `media/` | ローカル素材の置き場所。動画はGit管理しません |
+| `outputs/` | 計画・プレビュー・完成動画の出力先 |
+| `docs/` | 仕様、構成、撮影手順、検証記録 |
+| `tests/` | 合成素材を使う自動テスト |
+
+## データと認証情報
+
+動画・音声、文字起こし、OAuthクライアント情報、アクセストークン、アップロード再開台帳は公開しないでください。YouTube投稿は必ず `upload-private` で非公開として開始し、投稿後にチャンネルと公開状態を確認します。
